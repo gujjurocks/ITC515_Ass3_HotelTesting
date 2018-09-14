@@ -79,7 +79,12 @@ public class Room {
 
 
 	public void checkin() {
-		// TODO Auto-generated method stub
+		// checks if room state is ready or not, if not then throws runtime exception and changes status to occupied
+		if(!isReady())
+		{
+			throw new RuntimeException("Room is not READY");
+		}
+		state = State.OCCUPIED;
 	}
 
 
