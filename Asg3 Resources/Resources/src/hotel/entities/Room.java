@@ -60,7 +60,7 @@ public class Room {
 
 
 	public Booking book(Guest guest, Date arrivalDate, int stayLength, int numberOfOccupants, CreditCard creditCard) {
-		// TODO Auto-generated method stub
+		// checks if room is available or not, if available then new booking is created and added to bookings list
 		Booking booking = null;
 		if(isAvailable(arrivalDate, stayLength) && booking.isPending())
 		{
