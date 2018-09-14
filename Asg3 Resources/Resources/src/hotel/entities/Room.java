@@ -61,7 +61,20 @@ public class Room {
 
 	public Booking book(Guest guest, Date arrivalDate, int stayLength, int numberOfOccupants, CreditCard creditCard) {
 		// TODO Auto-generated method stub
-		return null;		
+		Booking booking = null;
+		if(isAvailable(arrivalDate, stayLength) && booking.isPending())
+		{
+			Room room;
+			booking = new Booking(guest, room, arrivalDate, stayLength, numberOfOccupants, creditCard)
+			System.out.println("Booking done successfully.");
+			bookings.add(booking);
+			return booking;
+		}
+		else
+		{
+			System.out.println("Booking already exists.");
+			return booking;
+		}		
 	}
 
 
