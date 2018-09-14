@@ -89,7 +89,13 @@ public class Room {
 
 
 	public void checkout(Booking booking) {
-		// TODO Auto-generated method stub
+		// checks if room state is occupied or not, if not then throws runtime exception and changes status to ready and removes booking
+		if(isReady())
+		{
+			throw new RuntimeException("Room is not OCCUPIED. Its ready.");
+		}
+		bookings.remove(booking);
+		state = State.READY;
 	}
 
 
