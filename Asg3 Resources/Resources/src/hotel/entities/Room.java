@@ -61,11 +61,9 @@ public class Room {
 
 	public Booking book(Guest guest, Date arrivalDate, int stayLength, int numberOfOccupants, CreditCard creditCard) {
 		// checks if room is available or not, if available then new booking is created and added to bookings list
-		Booking booking = null;
-		if(isAvailable(arrivalDate, stayLength) && booking.isPending())
+		Booking booking = new Booking(guest, this, arrivalDate, stayLength, numberOfOccupants, creditCard);
+		if(isAvailable(arrivalDate, stayLength))
 		{
-			Room room;
-			booking = new Booking(guest, room, arrivalDate, stayLength, numberOfOccupants, creditCard)
 			System.out.println("Booking done successfully.");
 			bookings.add(booking);
 			return booking;
@@ -74,7 +72,7 @@ public class Room {
 		{
 			System.out.println("Booking already exists.");
 			return booking;
-		}		
+		}
 	}
 
 
