@@ -121,8 +121,8 @@ Booking booking = (Booking)bookingsByConfirmationNumber.get(Long.valueOf(confirm
 
 Booking booking = (Booking)activeBookingsByRoomId.get(Integer.valueOf(roomId));
    if (booking == null) {
-     String mesg = String.format("Hotel: addServiceCharge: no booking present for room id : %d", new Object[] { Integer.valueOf(roomId) });
-     throw new RuntimeException(mesg);
+     String message = String.format("Hotel: addServiceCharge: no booking present for room id : %d", new Object[] { Integer.valueOf(roomId) });
+     throw new RuntimeException(message);
    }
    booking.addServiceCharge(serviceType, cost);
  }
@@ -130,8 +130,16 @@ Booking booking = (Booking)activeBookingsByRoomId.get(Integer.valueOf(roomId));
 
 	
 	public void checkout(int roomId) {
-		// TODO Auto-generated method stub
-	}
 
+		// use for checkout if no booking present for room id then throw exception
 
+Booking booking = (Booking)activeBookingsByRoomId.get(Integer.valueOf(roomId));
+   if (booking == null) {
+     String message = String.format("Hotel: checkout: no booking present for room id : %d", new Object[] { Integer.valueOf(roomId) });
+     throw new RuntimeException(message);
+   }
+   booking.checkOut();
+   activeBookingsByRoomId.remove(Integer.valueOf(roomId));
+ }
 }
+	
