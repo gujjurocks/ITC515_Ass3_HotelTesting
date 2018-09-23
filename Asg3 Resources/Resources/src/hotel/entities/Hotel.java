@@ -100,8 +100,19 @@ Booking booking = room.book(guest, arrivalDate, stayLength, occupantNumber, cred
 
 	
 	public void checkin(long confirmationNumber) {
-		// TODO Auto-generated method stub
-	}
+
+	// It throws RuntimeException if no booking for confirmation number exists.
+Booking booking = (Booking)bookingsByConfirmationNumber.get(Long.valueOf(confirmationNumber));
+   if (booking == null) {
+     String message = String.format("Hotel: checkin: No booking found for confirmation number %d", new Object[] { Long.valueOf(confirmationNumber) });
+     throw new RuntimeException(message);
+   }
+   int roomId = booking.getRoomId();
+
+   booking.checkIn();
+   activeBookingsByRoomId.put(Integer.valueOf(roomId), booking);
+ }
+	
 
 
 	public void addServiceCharge(int roomId, ServiceType serviceType, double cost) {
