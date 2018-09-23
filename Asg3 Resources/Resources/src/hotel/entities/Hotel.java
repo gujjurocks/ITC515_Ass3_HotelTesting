@@ -116,8 +116,17 @@ Booking booking = (Booking)bookingsByConfirmationNumber.get(Long.valueOf(confirm
 
 
 	public void addServiceCharge(int roomId, ServiceType serviceType, double cost) {
-		// TODO Auto-generated method stub
-	}
+		
+// Added ServiceCharge to the active booking.
+
+Booking booking = (Booking)activeBookingsByRoomId.get(Integer.valueOf(roomId));
+   if (booking == null) {
+     String mesg = String.format("Hotel: addServiceCharge: no booking present for room id : %d", new Object[] { Integer.valueOf(roomId) });
+     throw new RuntimeException(mesg);
+   }
+   booking.addServiceCharge(serviceType, cost);
+ }
+	
 
 	
 	public void checkout(int roomId) {
