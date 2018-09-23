@@ -14,17 +14,17 @@ import hotel.entities.RoomType;
 import hotel.utils.IOUtils;
 
 public class BookingCTL {
-	
-	
-	private static enum State {PHONE, ROOM, REGISTER, TIMES, CREDIT, APPROVED, CANCELLED, COMPLETED}	
-	
+
+
+	private static enum State {PHONE, ROOM, REGISTER, TIMES, CREDIT, APPROVED, CANCELLED, COMPLETED}
+
 	private BookingUI bookingUI;
 	private Hotel hotel;
 
 	private Guest guest;
 	private Room room;
 	private double cost;
-	
+
 	private State state;
 	private int phoneNumber;
 	private RoomType selectedRoomType;
@@ -32,29 +32,29 @@ public class BookingCTL {
 	private Date arrivalDate;
 	private int stayLength;
 
-	
+
 	public BookingCTL(Hotel hotel) {
 		this.bookingUI = new BookingUI(this);
 		this.hotel = hotel;
 		state = State.PHONE;
 	}
 
-	
-	public void run() {		
+
+	public void run() {
 		IOUtils.trace("BookingCTL: run");
 		bookingUI.run();
 	}
-	
-	
+
+
 	public void phoneNumberEntered(int phoneNumber) {
 		if (state != State.PHONE) {
 			String mesg = String.format("BookingCTL: phoneNumberEntered : bad state : %s", state);
 			throw new RuntimeException(mesg);
 		}
 		this.phoneNumber = phoneNumber;
-		
+
 		boolean isRegistered = hotel.isRegistered(phoneNumber);
-		
+
 		if (isRegistered) {
 			guest = hotel.findGuestByPhoneNumber(phoneNumber);
 			bookingUI.displayGuestDetails(guest.getName(), guest.getAddress(), guest.getPhoneNumber());
@@ -74,7 +74,7 @@ public class BookingCTL {
 			throw new RuntimeException(mesg);
 		}
 		guest = hotel.registerGuest(name, address, phoneNumber);
-		
+
 		bookingUI.displayGuestDetails(guest.getName(), guest.getAddress(), guest.getPhoneNumber());
 		state = State.ROOM;
 		bookingUI.setState(BookingUI.State.ROOM);
@@ -88,10 +88,10 @@ public class BookingCTL {
 		}
 		this.selectedRoomType = selectedRoomType;
 		this.occupantNumber = occupantNumber;
-		
+
 		boolean suitable = selectedRoomType.isSuitable(occupantNumber);
-		
-		if (!suitable) {			
+
+		if (!suitable) {
 			String notSuitableMessage = "\nRoom type unsuitable, please select another room type\n";
 			bookingUI.displayMessage(notSuitableMessage);
 		}
@@ -109,21 +109,21 @@ public class BookingCTL {
 		}
 		this.arrivalDate = arrivalDate;
 		this.stayLength = stayLength;
-		
+
 		room = hotel.findAvailableRoom(selectedRoomType, arrivalDate, stayLength);
-		
-		if (room == null) {				
+
+		if (room == null) {
 			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(arrivalDate);
 			calendar.add(Calendar.DATE, stayLength);
 			Date departureDate = calendar.getTime();
-			
+
 			String notAvailableStr = String.format("\n%s is not available between %s and %s\n",
 					selectedRoomType.getDescription(),
 					format.format(arrivalDate),
 					format.format(departureDate));
-			
+
 			bookingUI.displayMessage(notAvailableStr);
 		}
 		else {
@@ -137,7 +137,27 @@ public class BookingCTL {
 
 
 	public void creditDetailsEntered(CreditCardType type, int number, int ccv) {
-		// TODO Auto-generated method stub
+		// Check credit state, create new creditcard, check it is authorised or not if authorised then book room.
+	 if(state !=State.CREDIT)
+			{
+					throw new RuntimeException("state is not CREDIT.");
+			}
+			CreditCard creditCard=new CreditCard(type, number, ccv);
+			CreditAuthorizer creditAuthorizer=new CreditAuthorizer();
+
+			boolean approved=creditAuthorizer.authorize(creditCard, cost);
+			if(approved)
+			{
+		hotel.book(room, guest, arrivalDate, stayLength, occupantNumber, creditCard);
+		bookingUI.displayConfirmedBooking(room.getDescription(), number, arrivalDate, stayLength, guest.getName(), creditCard.getVendor(), number, cost, occupantNumber);
+		state=State.COMPLETED;
+		bookingUI.setState(BookingUI.State.COMPLETED);
+			}
+			else
+			{
+					bookingUI.displayMessage("Credit not authorised ");
+			}
+				
 	}
 
 
@@ -147,13 +167,13 @@ public class BookingCTL {
 		state = State.CANCELLED;
 		bookingUI.setState(BookingUI.State.CANCELLED);
 	}
-	
-	
+
+
 	public void completed() {
 		IOUtils.trace("BookingCTL: completed");
 		bookingUI.displayMessage("Booking completed");
 	}
 
-	
+
 
 }
