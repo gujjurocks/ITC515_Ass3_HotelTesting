@@ -88,24 +88,58 @@ public class Hotel {
 	public long book(Room room, Guest guest, 
 			Date arrivalDate, int stayLength, int occupantNumber,
 			CreditCard creditCard) {
-		// TODO Auto-generated method stub
-		return 0L;		
-	}
+
+		// Return a unique confirmation number for a booking
+Booking booking = room.book(guest, arrivalDate, stayLength, occupantNumber, creditCard);
+   long confirmationNumber = booking.getConfirmationNumber();
+   bookingsByConfirmationNumber.put(Long.valueOf(confirmationNumber), booking);
+   return confirmationNumber;
+ }
+
+		
 
 	
 	public void checkin(long confirmationNumber) {
-		// TODO Auto-generated method stub
-	}
+
+	// It throws RuntimeException if no booking for confirmation number exists.
+Booking booking = (Booking)bookingsByConfirmationNumber.get(Long.valueOf(confirmationNumber));
+   if (booking == null) {
+     String message = String.format("Hotel: checkin: No booking found for confirmation number %d", new Object[] { Long.valueOf(confirmationNumber) });
+     throw new RuntimeException(message);
+   }
+   int roomId = booking.getRoomId();
+
+   booking.checkIn();
+   activeBookingsByRoomId.put(Integer.valueOf(roomId), booking);
+ }
+	
 
 
 	public void addServiceCharge(int roomId, ServiceType serviceType, double cost) {
-		// TODO Auto-generated method stub
-	}
+		
+// Added ServiceCharge to the active booking.
+
+Booking booking = (Booking)activeBookingsByRoomId.get(Integer.valueOf(roomId));
+   if (booking == null) {
+     String message = String.format("Hotel: addServiceCharge: no booking present for room id : %d", new Object[] { Integer.valueOf(roomId) });
+     throw new RuntimeException(message);
+   }
+   booking.addServiceCharge(serviceType, cost);
+ }
+	
 
 	
 	public void checkout(int roomId) {
-		// TODO Auto-generated method stub
-	}
 
+		// use for checkout if no booking present for room id then throw exception
 
+Booking booking = (Booking)activeBookingsByRoomId.get(Integer.valueOf(roomId));
+   if (booking == null) {
+     String message = String.format("Hotel: checkout: no booking present for room id : %d", new Object[] { Integer.valueOf(roomId) });
+     throw new RuntimeException(message);
+   }
+   booking.checkOut();
+   activeBookingsByRoomId.remove(Integer.valueOf(roomId));
+ }
 }
+	

@@ -98,8 +98,35 @@ public class CheckoutCTL {
 
 	
 	public void creditDetailsEntered(CreditCardType type, int number, int ccv) {
-		// TODO Auto-generated method stub
-	}
+		
+// Use to create a new credit card
+
+if (state != State.CREDIT) {
+     String mesg = String.format("CheckoutCTL: bookingTimesEntered : bad state : %s", new Object[] { state });
+     throw new RuntimeException(mesg);
+   }
+   hotel.credit.CreditCard card = new hotel.credit.CreditCard(type, number, ccv);
+   boolean approved = hotel.credit.CreditAuthorizer.getInstance().authorize(card, total);
+   if (!approved) {
+     String outputStr = String.format(
+       "%s credit card number %d was not authorized for $%.2f", new Object[] {
+       type.getVendor(), Integer.valueOf(number), Double.valueOf(total) });
+
+     checkoutUI.displayMessage(outputStr);
+   }
+   else
+   {
+     hotel.checkout(roomId);
+     String outputStr = String.format(
+       "%s credit card number %d was debited $%.2f", new Object[] {
+       card.getType().getVendor(), Integer.valueOf(card.getNumber()), Double.valueOf(total) });
+     checkoutUI.displayMessage(outputStr);
+     state = State.COMPLETED;
+     checkoutUI.setState(CheckoutUI.State.COMPLETED);
+   }
+ }
+
+	
 
 
 	public void cancel() {
